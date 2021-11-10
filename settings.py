@@ -89,7 +89,7 @@ class Exists:
 
         SET_SIZE: int = 99999
         MIN_SEED: int = 0
-        SEED_LEN: int = None
+        SEED_LEN: int = 5
         SOURCE_URL: str = "https://www.thiswaifudoesnotexist.net/example-{}.jpg"
 
     class Beach:
