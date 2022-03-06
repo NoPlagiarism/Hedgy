@@ -12,7 +12,7 @@ load_dotenv()
 COMMAND_PREFIX = "!!"
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 EXCLUDED_COGS = ("__init__.py", )
-GUILD_IDS = [854827326495653939, 845636849623105566]
+GUILD_IDS = []
 # EXCLUDED_COGS = ("__init__.py", "Va11Halla.py")
 # EXCLUDED_COMMANDS = ()
 
