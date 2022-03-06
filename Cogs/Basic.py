@@ -23,7 +23,7 @@ class Basic(commands.Cog):
             self.not_found_count[ctx.author.id] += 1
             if not self.not_found_count[ctx.author.id] % Settings.FAIL_NOT_FOUND_FREQ:
                 return await ctx.reply(
-                    "Ты объежился уже {} {}. Начни использовать {}help".format(self.not_found_count[ctx.author.id],
+                    "Ты ежанулся уже {} {}. Начни использовать {}help".format(self.not_found_count[ctx.author.id],
                                                                                morph_numerals(
                                                                                    self.not_found_count[ctx.author.id]),
                                                                                ctx.prefix))
@@ -48,6 +48,11 @@ class Basic(commands.Cog):
         @commands.Cog.listener()
         async def on_command(self, ctx):
             logger.trace(f"{ctx.author.display_name} ({ctx.author.id}) invoked command with {ctx.message.content} ({ctx.message.id})")
+
+        @commands.Cog.listener()
+        async def on_application_command(self, ctx):
+            logger.trace(
+                f"{ctx.author.display_name} ({ctx.author.id}) invoked command with {ctx.message.content} ({ctx.message.id})")
 
     @commands.command(name="ping")
     async def ping(self, ctx):

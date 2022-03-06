@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # settings.py should be in one folder with main.py
@@ -6,10 +7,30 @@ DATA_DIR = os.path.join(ROOT_DIR, 'data')
 COGS_DIR = os.path.join(ROOT_DIR, "Cogs")  # should be in root folder
 COGS_MODULE_NAME = "Cogs"
 
+load_dotenv()
+
 COMMAND_PREFIX = "!!"
-DISCORD_BOT_TOKEN = "<ВСТАВЬТЕ ДИСКОРД ТОКЕН БОТА>"
+DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 EXCLUDED_COGS = ("__init__.py", )
+GUILD_IDS = [854827326495653939, 845636849623105566]
+# EXCLUDED_COGS = ("__init__.py", "Va11Halla.py")
 # EXCLUDED_COMMANDS = ()
+
+
+class Youtube:
+    VALIDATE_API_KEY = True
+    # API ключ от Youtube Data Api https://rapidapi.com/blog/how-to-get-youtube-api-key/
+    API_KEY = os.getenv("YOUTUBE_API_KEY")
+    DEFAULT_PLAYLIST_RYTP = "PLVUKS5caoZkYb1N8RDyy9HLMRKZHqvuGE"  # Hedgehog playlist by Anitavia
+
+    ENABLED_PLAYLISTS = ("PLVUKS5caoZkYb1N8RDyy9HLMRKZHqvuGE", )
+    ENABLE_ALL = True
+
+
+class DBSqlite:
+    database = ":memory:"
+    # database = "hedgy.sqlite3"
+    connection_kwargs = {"check_same_thread": False}
 
 
 class Logs:
@@ -37,81 +58,6 @@ class Help:
     EXCLUDED_COMMANDS = ("error", "ping")
     FIELD_SEPARATOR = "%ANOTHER_FIELD%"
     FIELD_NAME = ""
-
-
-class Exists:
-    ART = 'OneImageGenerator(name="This Artwork Does Not Exist", url="https://thisartworkdoesnotexist.com/")'
-    CAT = 'OneImageGenerator(name="This Cat Does Not Exist", url="https://thiscatdoesnotexist.com/")'
-    HORSE = 'OneImageGenerator(name="This Horse Does Not Exist", url="https://thishorsedoesnotexist.com/")'
-    PERSON = 'OneImageGenerator(name="This Person Does Not Exist", url="https://thispersondoesnotexist.com", img_url="https://thispersondoesnotexist.com/image")'
-
-    """class SeedGenerator: NAME, URL, SET_SIZE, MIN_SEED, SEED_LEN, SOURCE_URL"""
-
-    class Fursona:
-        NAME = "This Fursona Does Not Exists"
-        URL = "https://thisfursonadoesnotexist.com/"
-
-        SET_SIZE: int = 99999
-        MIN_SEED: int = 0
-        SEED_LEN: int = 5
-        SOURCE_URL: str = "https://thisfursonadoesnotexist.com/v2/jpgs-2x/seed{0:0" + str(SEED_LEN) + "n}.jpg"
-
-    class Pony:
-        NAME = "This Pony Does Not Exists"
-        URL = "https://thisponydoesnotexist.net/"
-
-        SET_SIZE: int = 75000
-        MIN_SEED: int = 0
-        SEED_LEN: int = 5
-        SOURCE_URL: str = "https://thisponydoesnotexist.net/v1/w2x-redo/jpgs/seed{0:0" + str(SEED_LEN) + "n}.jpg"
-
-    class NightSky:
-        NAME = "This Night Sky Does Not Exist"
-        URL = "https://arthurfindelair.com/thisnightskydoesnotexist/"
-
-        SET_SIZE: int = 5000
-        MIN_SEED: int = 1
-        SEED_LEN: int = 4
-        SOURCE_URL: str = "https://firebasestorage.googleapis.com/v0/b/thisnightskydoesnotexist.appspot.com/o/images%2Fseed{0:0" + str(SEED_LEN) + "n}.jpg?alt=media"
-
-    class Map:
-        NAME = "This Map Does Not Exists"
-        URL = "http://thismapdoesnotexist.com"
-
-        SET_SIZE: int = 9999
-        MIN_SEED: int = 0
-        SEED_LEN: int = 4
-        SOURCE_URL: str = "https://raw.githubusercontent.com/iboates/thismapdoesnotexist-images/master/img/seed{0:0" + str(SEED_LEN) + "n}.png"
-
-    class Waifu:
-        NAME = "This Waifu Does Not Exists"
-        URL = "https://thiswaifudoesnotexist.net/"
-
-        SET_SIZE: int = 99999
-        MIN_SEED: int = 0
-        SEED_LEN: int = 5
-        SOURCE_URL: str = "https://www.thiswaifudoesnotexist.net/example-{}.jpg"
-
-    class Beach:
-        NAME = "This Beach Does Not Exists"
-        URL = "https://thisbeachdoesnotexist.com"
-
-        SET_SIZE: int = 9999
-        MIN_SEED: int = 1
-        SEED_LEN: int = 4
-        SOURCE_URL = "https://thisbeachdoesnotexist.com/data/seeds-075/{}.jpg"
-
-    IMG_NAME = "not_a_hedgehog.png"  # OneImageGenerator and e.t.c
-
-
-class Youtube:
-    VALIDATE_API_KEY = True
-    # API ключ от Youtube Data Api https://rapidapi.com/blog/how-to-get-youtube-api-key/
-    API_KEY = "<API ключ от Youtube Data Api>"
-    DEFAULT_PLAYLIST_RYTP = "PLVUKS5caoZkYb1N8RDyy9HLMRKZHqvuGE"  # Hedgehog playlist by Anitavia
-
-    ENABLED_PLAYLISTS = ("PLVUKS5caoZkYb1N8RDyy9HLMRKZHqvuGE", )
-    ENABLE_ALL = True
 
 
 class Reddit:
@@ -162,9 +108,8 @@ class Va11Halla:
     SCRIPTS_PER_PAGE = 15
     ENABLE_ALL = True  # init all on start (НЕ СНИМАТЬ! это уже полная константа)
 
-    USE_REACTIONS = True
-    REACTIONS = ("⏪", "⏺", "⏩")
-    REACTIONS_TIMEOUT = 60
+    USE_VIEW = True
+    VIEW_TIMEOUT = 60
 
     DISABLE_DOGS_LIST = True
     CHARACTERS_PER_PAGE_FILTERED = 9

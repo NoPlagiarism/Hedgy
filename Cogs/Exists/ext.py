@@ -1,6 +1,6 @@
 from discord.ext import commands
-from settings import Exists as Settings
-from Utils import OneImageGenerator, SeedGenerator, CityGenerator
+from .meta import Exists as Settings
+from .generators import OneImageGenerator, SeedGenerator, CityGenerator, EyeGenerator
 
 
 class Exists(commands.Cog):
@@ -30,7 +30,7 @@ class Exists(commands.Cog):
     async def seed_generator(self, ctx, seed, meta):
         if seed is not None:
             if not (meta.MIN_SEED <= seed <= meta.SET_SIZE):
-                return ctx.reply("Отправьте число от {} до {}".format(meta.MIN_SEED, meta.SET_SIZE))
+                return await ctx.reply("Отправьте число от {} до {}".format(meta.MIN_SEED, meta.SET_SIZE))
         generator = SeedGenerator(meta)
         return await ctx.send(embed=generator.get_embed(seed))
 
@@ -62,6 +62,10 @@ class Exists(commands.Cog):
     async def beach(self, ctx, seed: int = None):
         return await self.seed_generator(ctx, seed, Settings.Beach)
 
+    @commands.command(aliases=("thissneakerdoesnotexist", ))
+    async def sneaker(self, ctx, seed: int = None):
+        return await self.seed_generator(ctx, seed, Settings.Sneaker)
 
-def setup(bot):
-    bot.add_cog(Exists(bot))
+    @commands.command(aliases=("thiseyedoesnotexist", ))
+    async def eye(self, ctx):
+        return await ctx.send(embed=await EyeGenerator().get_embed())

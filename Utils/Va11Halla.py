@@ -2,6 +2,9 @@ import random
 import json
 from settings import Va11Halla as Va11Halla_settings
 from loguru import logger
+from time import time
+
+random.seed(int(time()))
 
 
 class Script:
@@ -187,9 +190,11 @@ class Va11HallaJSON:
             script = self.get_script(script_name)
         try:
             line = script[line_num-1]
+            if line['type'] == 'META':
+                raise ScriptLineDoesNotExists(Script(line), line_num)
             return Dialogue.from_scripts_dial(line, script[0])
         except IndexError:
-            pass
+            raise ScriptLineDoesNotExists(Script(script[0]), line_num)
 
     def random_from_scripts(self, script_name=None, character=None) -> Dialogue:
         if script_name is not None:

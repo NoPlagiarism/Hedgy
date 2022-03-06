@@ -1,19 +1,37 @@
+# from __future__ import absolute_import
 import json
 from math import ceil
 import discord
 from settings import Va11Halla as Va11Halla_settings
 from Utils import Va11HallaJSON, CharacterNotFound, progress_bar, CommandArgumentError, ScriptLineDoesNotExists
-from discord.ext import commands
+from discord.ext.commands import command, Cog
+from discord.ext.commands.errors import MaxConcurrencyReached
+from discord.ui import View
+from discord import ButtonStyle
+
+# try:
+
+from core.ui import Button
+from core.utils.predicates import ReactionsPredicate
+from core.utils.utils import lambda_awaited
+# except ImportError:
+#     import sys
+#     import os
+#
+#     sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+#     from core.ui import Button
+#     from core.utils.predicates import ReactionsPredicate
+#     from core.utils.utils import lambda_awaited
 from time import time
 import random
 from loguru import logger
 from os.path import exists
 from asyncio import TimeoutError
-from core.utils.predicates import ReactionsPredicate
 
 random.seed(int(time()))
 
 
+# TODO: как-то хреново.. рефакторнуть весь код
 class DialEmbed(discord.Embed):
     def __init__(self, dial=None, character_uri=None):
         super(DialEmbed, self).__init__(colour=Va11Halla_settings.EMBED_COLOR)
@@ -28,13 +46,88 @@ class DialEmbed(discord.Embed):
             self.clear_fields()
         if dial is not None and character_uri is not None:
             self.dial, self.character_uri = dial, character_uri
+        if str(self.dial) == "":
+            self.dial.text = "..."
         self.add_field(name=self.dial.character, value=str(self.dial), inline=False)
         progress_bar_str, percent = progress_bar(dial.line, dial.script.lines)
         self.set_footer(text=f"{repr(dial.script)} {progress_bar_str} {dial.line}/{dial.script.lines}")
         self.set_thumbnail(url=character_uri)
 
+    @property
+    def line(self) -> int:
+        return self.dial.line
 
-class Va11Halla(commands.Cog):
+
+class ViewCtx(dict):
+    @property
+    def embed(self) -> DialEmbed:
+        return self[0]
+
+    @embed.setter
+    def embed(self, val):
+        self[0] = val
+
+    @property
+    def ctx(self) -> discord.ext.commands.Context:
+        return self[1]
+
+    @ctx.setter
+    def ctx(self, val):
+        self[1] = val
+
+    @property
+    def message(self):
+        return self[2]
+
+    @message.setter
+    def message(self, val):
+        self[2] = val
+
+
+class Va11HallaView(View):
+    def __init__(self, callback, view_ctx=None):
+        self._callback = callback
+        self.view_ctx = view_ctx
+
+        self.backward = Button(emoji="⏪", style=ButtonStyle.primary,
+                               callback=lambda _: lambda_awaited(await self.callback(0) for _ in '_'))
+        self.random = Button(emoji="⏺", style=ButtonStyle.success,
+                             callback=lambda _: lambda_awaited(await self.callback(1) for _ in '_'))
+        self.forward = Button(emoji="⏩", style=ButtonStyle.primary,
+                              callback=lambda _: lambda_awaited(await self.callback(2) for _ in '_'))
+
+        super(Va11HallaView, self).__init__(self.backward, self.random, self.forward,
+                                            timeout=Va11Halla_settings.VIEW_TIMEOUT)
+
+    @property
+    def message(self):
+        return self.view_ctx.message
+
+    async def on_timeout(self) -> None:
+        return await self.message.edit(view=None)
+
+    async def callback(self, button_index):
+        return await self._callback(self, button_index)
+
+    async def switching_buttons(self, n_dial=None, max_line=None):
+        if n_dial is None or max_line is None:
+            n_dial = self.view_ctx.embed.dial.line
+            max_line = self.view_ctx.embed.dial.script.lines
+        not_changed = False
+        if n_dial == max_line:
+            self.forward.disabled = True
+        elif n_dial == max_line - 1:
+            self.forward.disabled = False
+        elif n_dial == 1:
+            self.backward.disabled = True
+        elif n_dial == 2:
+            self.backward.disabled = False
+        else:
+            not_changed = True
+        return not_changed
+
+
+class Va11Halla(Cog):
     def __init__(self, bot):
         self.bot = bot
         self.lang = Va11Halla_settings.DEF_LANG
@@ -51,6 +144,12 @@ class Va11Halla(commands.Cog):
         else:
             self.CHARACTERS_PER_PAGE = Va11Halla_settings.CHARACTERS_PER_PAGE
 
+    async def cog_command_error(self, ctx, error):
+        if isinstance(error.__dict__.get("original"), MaxConcurrencyReached):
+            pass
+        else:
+            ctx.bot.dispatch("command_error", ctx, error)
+
     @property
     def data(self) -> Va11HallaJSON:
         return self._data[self.lang]
@@ -59,9 +158,9 @@ class Va11Halla(commands.Cog):
         pages = ceil(len(self.data.characters) / self.CHARACTERS_PER_PAGE)
         if page is None:
             page = 0
-        elif not (0 <= page <= pages-1):
+        elif not (0 <= page <= pages - 1):
             page = 0
-        characters_slice = self.data.characters[self.CHARACTERS_PER_PAGE * page:self.CHARACTERS_PER_PAGE * (page+1)]
+        characters_slice = self.data.characters[self.CHARACTERS_PER_PAGE * page:self.CHARACTERS_PER_PAGE * (page + 1)]
         icon = random.choice(tuple(self.config['char_icons'].values()))
         return characters_slice, icon, pages
 
@@ -70,9 +169,10 @@ class Va11Halla(commands.Cog):
         pages = ceil(len(scripts) / Va11Halla_settings.SCRIPTS_PER_PAGE)
         if page is None:
             page = 0
-        elif not (0 <= page <= pages-1):
+        elif not (0 <= page <= pages - 1):
             page = 0
-        scripts_slice = scripts[Va11Halla_settings.SCRIPTS_PER_PAGE * page:Va11Halla_settings.SCRIPTS_PER_PAGE * (page+1)]
+        scripts_slice = scripts[
+                        Va11Halla_settings.SCRIPTS_PER_PAGE * page:Va11Halla_settings.SCRIPTS_PER_PAGE * (page + 1)]
         icon = random.choice(tuple(self.config['char_icons'].values()))
         return scripts_slice, icon, pages
 
@@ -102,11 +202,11 @@ class Va11Halla(commands.Cog):
         if page > total_pages or 0 > page:
             page = 0
         embed = discord.Embed(colour=Va11Halla_settings.EMBED_COLOR, title="list of " + list_type)
-        embed.add_field(name=f"Page {page+1}", value='\n'.join(listing), inline=False)
-        embed.set_footer(text=f"{page+1}/{total_pages}", icon_url=icon)
+        embed.add_field(name=f"Page {page + 1}", value='\n'.join(listing), inline=False)
+        embed.set_footer(text=f"{page + 1}/{total_pages}", icon_url=icon)
         return await ctx.send(embed=embed)
 
-    @commands.command(aliases=("va11", "valhalla"))
+    @command(aliases=("va11", "valhalla"))
     async def va11halla(self, ctx, *args):
         """Комманда для случайного диалога из VA-11 HALL-A
         доступно -
@@ -158,7 +258,7 @@ class Va11Halla(commands.Cog):
                 try:
                     dial = self.data.get_script_line(line_num=line, script_name=script)
                 except ScriptLineDoesNotExists as e:
-                    return await ctx.send("Выберите линию входящую в диапозон от 2 до " + str(e.script['lines']))
+                    return await ctx.send("Выберите линию входящую в диапозон от 2 до " + str(e.script.lines))
             elif script and character:
                 try:
                     dial = self.data.random_from_scripts(script, character)
@@ -173,49 +273,32 @@ class Va11Halla(commands.Cog):
 
             embed = DialEmbed(dial, self.config["char_icons"][self.data.names[dial.character]])
 
-        message = await ctx.send(embed=embed)
-        return await self.handle_reactions(message, embed, ctx)
+        if Va11Halla_settings.USE_VIEW:
+            view_ctx = ViewCtx()
+            view_ctx.embed = embed
+            view_ctx.ctx = ctx
+            view = Va11HallaView(await self._get_buttons_callback(), view_ctx)
+            message = await ctx.send(embed=embed, view=view)
+            view.view_ctx.message = message
+        else:
+            return await ctx.send(embed=embed)
 
-    if Va11Halla_settings.USE_REACTIONS:
-        async def handle_reactions(self, message, embed, ctx):
-            await message.add_reaction(Va11Halla_settings.REACTIONS[0]) if embed.dial.line > 0 else None
-            await message.add_reaction(Va11Halla_settings.REACTIONS[1])
-            await message.add_reaction(Va11Halla_settings.REACTIONS[2]) if embed.dial.line <= embed.dial.script.lines else None
+    async def _get_buttons_callback(self):
+        async def button_callback(view, index):
+            if index == 0:
+                dial = self.data.get_script_line(view.view_ctx.embed.line - 1, meta=view.view_ctx.embed.dial.script)
+            elif index == 1:
+                dial = self.data.random_from_scripts()
+            elif index == 2:
+                dial = self.data.get_script_line(view.view_ctx.embed.line + 1, meta=view.view_ctx.embed.dial.script)
+            else:
+                dial = view.view_ctx.embed.dial
+            view.view_ctx.embed.update_embed(dial, self.config["char_icons"][self.data.names[dial.character]])
+            await view.switching_buttons()
+            await view.view_ctx.message.edit(embed=view.view_ctx.embed, view=view)
 
-            while True:
-                try:
-                    checker = ReactionsPredicate.emojis(Va11Halla_settings.REACTIONS, message=message, user=ctx.author)
-                    reaction, user = await self.bot.wait_for("reaction_add", timeout=Va11Halla_settings.REACTIONS_TIMEOUT,
-                                                             check=checker)
+        return button_callback
 
-                    if str(reaction.emoji) == Va11Halla_settings.REACTIONS[0]:
-                        dial = self.data.get_script_line(embed.dial.line-1, meta=embed.dial.script)
-                        if dial.line == 1:
-                            await message.remove_reaction(Va11Halla_settings.REACTIONS[0])
-                        elif dial.line == dial.script.lines-1:
-                            await message.add_reaction(Va11Halla_settings.REACTIONS[2])
-                    elif str(reaction.emoji) == Va11Halla_settings.REACTIONS[1]:
-                        dial = self.data.random_from_scripts()
-                    elif str(reaction.emoji) == Va11Halla_settings.REACTIONS[2]:
-                        dial = self.data.get_script_line(embed.dial.line+1, meta=embed.dial.script)
-                        if dial.line == 2:
-                            await message.add_reaction(Va11Halla_settings.REACTIONS[0])
-                        elif dial.line == dial.script.lines:
-                            await message.remove_reaction(Va11Halla_settings.REACTIONS[2])
-                    else:
-                        continue
-                    embed.update_embed(dial, self.config["char_icons"][self.data.names[dial.character]])
-                    await message.remove_reaction(reaction, user)
-                    await message.edit(embed=embed)
-                except TimeoutError:
-                    for reaction in Va11Halla_settings.REACTIONS:
-                        try:
-                            await message.clear_reaction(reaction)
-                        except discord.NotFound:
-                            pass
-    else:
-        async def handle_reactions(self, message, embed, ctx):
-            pass
 
 if Va11Halla_settings.VALIDATE_PATHS:
     def check():

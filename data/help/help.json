@@ -1,0 +1,22 @@
+{
+  "commands": {
+    "art": "Генератор настоящего современного искусства, основанный на https://thisartworkdoesnotexist.com",
+    "beach": "Генератор несуществующих пляжей, основанный на https://thisbeachdoesnotexist.com",
+    "cat": "Генератор Katze, основанный на https://thiscatdoesnotexist.com",
+    "city": "Генератор \"снимков\" со спутника несуществуюзих городов, основанный на http://thiscitydoesnotexist.com",
+    "fursona": "Генератор истинных фуррей, основанный на https://thisfursonadoesnotexist.com\\nseed - сид изображения от 0 до 99999\\n{PREFIX}fursona <seed>",
+    "hedge": "Просто рандомный реддит с r/hedgehog\\nсм. {PREFIX}help reddit\\nhedge <sort> <page>",
+    "hedgememe": "Тупо мемчик с r/HedgehogMemes\\n{PREFIX}help reddit\\n{PREFIX}hedgememe <sort> <page>",
+    "help": "При передаче модуля в аргументы, описывает модуль.\\nПри передаче комманды описывает саму комманду и её сокращения\\n{PREFIX}help <Модуль или Комманда>",
+    "horse": "Генератор лошадей, несуществующих в этом мире, основанный на https://thishorsedoesnotexist.com",
+    "last_reddit": "Показывает последний пост с реддита, который был выдан с помощью {PREFIX}reddit и других комманд",
+    "map": "Генератор картосхем районов из моих снов, основанный на http://thismapdoesnotexist.com. Да, их не существует\\nseed - сид изображения от 0 до 9999\\n{PREFIX}map <seed>",
+    "night_sky": "Генератор несуществуещего неба, основанный на https://arthurfindelair.com/thisnightskydoesnotexist. Залипательно\\nseed - сид изображения от 1 до 5000\\n{PREFIX}night_sky <seed>",
+    "person": "Генератор несуществующих людей, основанный на https://thispersondoesnotexist.com",
+    "pony": "Генератор поней, основанный на https://thisponydoesnotexist.net \\nseed - сид изображения от 0 до 75000\\n{PREFIX}pony <seed>",
+    "randomyoutubeplaylist": "Случайное видео из плейлиста YouTube. По дефолту - ежиное видео\\nurl - ссылка на плейлист\\n{PREFIX}rytp <url>",
+    "reddit": "Модуль ещё требует переработки. Стыдно о нём писать пока что. Просто пишите нужный сабреддит в аргументах",
+    "va11halla": "",
+    "waifu": "Генератор несуществующих аниме-тян, основанный на https://thiswaifudoesnotexist.net \\nseed - сид изображения от 0 до 99999%ANOTHER_FIELD%{PREFIX}waifu <seed>"
+  }
+}
