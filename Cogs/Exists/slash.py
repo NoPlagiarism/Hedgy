@@ -1,7 +1,6 @@
 from discord.ext.commands import Cog, slash_command
 from discord.commands import Option, ApplicationContext
 from .meta import Exists as Settings
-from settings import GUILD_IDS
 from .generators import OneImageGenerator, SeedGenerator, CityGenerator, EyeGenerator
 
 
@@ -61,7 +60,7 @@ class ExistsSlash(Cog):
         generator = SeedGenerator(meta)
         return await ctx.respond(embed=generator.get_embed(seed))
 
-    @slash_command(name="exists", description="That Does Not Exists", guild_ids=GUILD_IDS)
+    @slash_command(name="exists", description="That Does Not Exists")
     async def doesnotexists(self,
                       ctx: ApplicationContext,
                       generator: Option(str, name="generator", description="Name of x", required=True, choices=EXISTS_LIST),

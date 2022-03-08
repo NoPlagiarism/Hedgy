@@ -4,7 +4,7 @@ try:
     from .core.bot import Hedgy
 except ImportError:
     from core.bot import Hedgy
-from settings import Logs, os, COMMAND_PREFIX, COGS_DIR, EXCLUDED_COGS, COGS_MODULE_NAME, DISCORD_BOT_TOKEN
+from settings import Logs, os, COMMAND_PREFIX, COGS_DIR, EXCLUDED_COGS, COGS_MODULE_NAME, DISCORD_BOT_TOKEN, GUILD_IDS
 from Utils import get_aliases
 from loguru import logger
 from pprint import pformat
@@ -25,7 +25,7 @@ def main():
     logger.info(f"Program has been started")
 
     http.API_VERSION = 9
-    bot = Hedgy(command_prefix=COMMAND_PREFIX)
+    bot = Hedgy(command_prefix=COMMAND_PREFIX, debug_guilds=GUILD_IDS)
 
     for filename in os.listdir(COGS_DIR):
         if filename in EXCLUDED_COGS:
