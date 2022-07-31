@@ -75,11 +75,8 @@ class Reddit(commands.Cog):
             # Анти-Хорни
             if NSFWCheck.NSFW_CHECK:
                 if post_json['over_18']:
-                    if type(ctx.channel) is DMChannel:
-                        if not NSFWCheck.ALLOW_NSFW_IN_DM:
-                            return await ctx.send("https://i.vgy.me/Vuxpn2.png")
-                    elif not NSFWCheck.ALLOW_NSFW_IN_NSFW or not (NSFWCheck.ALLOW_NSFW_IN_NSFW and ctx.channel.is_nsfw()):
-                        return await ctx.send("https://i.vgy.me/Vuxpn2.png")
+                    if not self.bot.check_if_nsfw_enabled(ctx=ctx):
+                        return await ctx.reply("https://i.vgy.me/Vuxpn2.png")
 
             if post_json.get("gallery_data", False):
                 for item in post_json["gallery_data"]["items"]:
