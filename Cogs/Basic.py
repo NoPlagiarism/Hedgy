@@ -52,7 +52,7 @@ class Basic(commands.Cog):
         @commands.Cog.listener()
         async def on_application_command(self, ctx):
             logger.trace(
-                f"{ctx.author.display_name} ({ctx.author.id}) invoked command with {ctx.message.content} ({ctx.message.id})")
+                f"{ctx.author.display_name} ({ctx.author.id}) invoked {ctx.command}")
 
     @commands.command(name="ping")
     async def ping(self, ctx):
