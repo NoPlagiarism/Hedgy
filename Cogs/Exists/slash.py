@@ -2,6 +2,7 @@ from discord.ext.commands import Cog, slash_command
 from discord.commands import Option, ApplicationContext
 from .meta import Exists as Settings
 from .generators import OneImageGenerator, SeedGenerator, CityGenerator, EyeGenerator
+from settings import NSFWCheck
 
 
 class GeneratorTypes:
@@ -23,6 +24,7 @@ EXISTS_DICT = {
     "Cat": GeneratorTypes.ONE_IMAGE,
     "Art": GeneratorTypes.ONE_IMAGE,
     "Horse": GeneratorTypes.ONE_IMAGE,
+    "Tits": GeneratorTypes.ONE_IMAGE,
     "Sneaker": GeneratorTypes.SEED,
     "Eye": GeneratorTypes.EYE
 }
@@ -39,6 +41,7 @@ EXISTS_META = {
     "Cat": Settings.CAT,
     "Art": Settings.ART,
     "Horse": Settings.HORSE,
+    "Tits": Settings.TITS,
     "Sneaker": Settings.Sneaker,
     "Eye": None
 }
@@ -50,6 +53,9 @@ class ExistsSlash(Cog):
 
     async def one_image_generator(self, ctx, generator_eval):
         generator = eval(generator_eval)
+        if generator.nsfw:
+            if not self.bot.check_if_nsfw_enabled(ctx=ctx):
+                return await ctx.respond(NSFWCheck.DEFAULT_ANTI_HORNY_IMG_URL, ephemeral=True)
         return await ctx.respond(embed=await generator.get_embed(), file=await generator.get_image())
 
     async def seed_generator(self, ctx, meta, seed):

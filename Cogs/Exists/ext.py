@@ -1,6 +1,7 @@
 from discord.ext import commands
 from .meta import Exists as Settings
 from .generators import OneImageGenerator, SeedGenerator, CityGenerator, EyeGenerator
+from settings import NSFWCheck
 
 
 class Exists(commands.Cog):
@@ -9,6 +10,9 @@ class Exists(commands.Cog):
 
     async def one_image_generator(self, ctx, generator_eval):
         generator = eval(generator_eval)
+        if generator.nsfw:
+            if not self.bot.check_if_nsfw_enabled(ctx=ctx):
+                return await ctx.reply(NSFWCheck.DEFAULT_ANTI_HORNY_IMG_URL)
         return await ctx.send(embed=await generator.get_embed(), file=await generator.get_image())
 
     @commands.command(aliases=("thiscatdoesnotexist", ))
@@ -26,6 +30,11 @@ class Exists(commands.Cog):
     @commands.command(aliases=("human", "thispersondoesnotexist"))
     async def person(self, ctx):
         return await self.one_image_generator(ctx, Settings.PERSON)
+
+    @commands.command(aliases=("boobs", "thesetitsdonotexist"))
+    async def tits(self, ctx):
+        # JUST FKING KILL ME, LMFAO XD
+        return await self.one_image_generator(ctx, Settings.TITS)
 
     async def seed_generator(self, ctx, seed, meta):
         if seed is not None:
