@@ -1,5 +1,6 @@
 import json
 from discord.ext.commands.errors import CommandError
+from discord.commands import SlashCommand
 from math import ceil
 
 
@@ -43,6 +44,8 @@ def get_aliases(commands=None, bot=None):
         commands = bot.all_commands
     command_functions = dict()
     for command in commands.values():
+        if isinstance(command, SlashCommand):
+            continue
         command_functions[command.name] = command.aliases
     return command_functions
 
