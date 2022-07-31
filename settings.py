@@ -67,10 +67,6 @@ class Reddit:
 
     ENABLED_SUBREDDITS = ["HedgehogMemes", "Hedgehog"]
     ENABLE_ALL_SUBREDDITS = True
-    # Всё об NSFW
-    NSFW_CHECK = True
-    ALLOW_NSFW_IN_NSFW = True
-    ALLOW_NSFW_IN_DM = True
 
     DEF_SUBREDDIT = "HedgehogMemes"
 
@@ -79,6 +75,13 @@ class Reddit:
 
     # Кэш последнего рандомного реддита
     LAST_REDDIT_URL = True
+
+
+class NSFWCheck:
+    # Всё об NSFW
+    NSFW_CHECK = True
+    ALLOW_NSFW_IN_NSFW = True
+    ALLOW_NSFW_IN_DM = True
 
 
 class Basic:

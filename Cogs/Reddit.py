@@ -1,4 +1,4 @@
-from settings import Reddit as Settings
+from settings import Reddit as Settings, NSFWCheck
 from Utils import RedditAIO, SubredditNotFound
 from discord.ext import commands
 from random import choice
@@ -73,12 +73,12 @@ class Reddit(commands.Cog):
                 post_json = choice(page['data']['children'])['data']
 
             # Анти-Хорни
-            if Settings.NSFW_CHECK:
+            if NSFWCheck.NSFW_CHECK:
                 if post_json['over_18']:
                     if type(ctx.channel) is DMChannel:
-                        if not Settings.ALLOW_NSFW_IN_DM:
+                        if not NSFWCheck.ALLOW_NSFW_IN_DM:
                             return await ctx.send("https://i.vgy.me/Vuxpn2.png")
-                    elif not Settings.ALLOW_NSFW_IN_NSFW or not (Settings.ALLOW_NSFW_IN_NSFW and ctx.channel.is_nsfw()):
+                    elif not NSFWCheck.ALLOW_NSFW_IN_NSFW or not (NSFWCheck.ALLOW_NSFW_IN_NSFW and ctx.channel.is_nsfw()):
                         return await ctx.send("https://i.vgy.me/Vuxpn2.png")
 
             if post_json.get("gallery_data", False):
