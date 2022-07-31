@@ -76,7 +76,7 @@ class Reddit(commands.Cog):
             if NSFWCheck.NSFW_CHECK:
                 if post_json['over_18']:
                     if not self.bot.check_if_nsfw_enabled(ctx=ctx):
-                        return await ctx.reply("https://i.vgy.me/Vuxpn2.png")
+                        return await ctx.reply(NSFWCheck.DEFAULT_ANTI_HORNY_IMG_URL)
 
             if post_json.get("gallery_data", False):
                 for item in post_json["gallery_data"]["items"]:

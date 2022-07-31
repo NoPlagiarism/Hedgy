@@ -82,6 +82,7 @@ class NSFWCheck:
     NSFW_CHECK = True
     ALLOW_NSFW_IN_NSFW = True
     ALLOW_NSFW_IN_DM = True
+    DEFAULT_ANTI_HORNY_IMG_URL = "https://i.vgy.me/Vuxpn2.png"
 
 
 class Basic:
