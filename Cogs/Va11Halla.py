@@ -90,11 +90,11 @@ class Va11HallaView(View):
         self.view_ctx = view_ctx
 
         self.backward = Button(emoji="⏪", style=ButtonStyle.primary,
-                               callback=lambda _: lambda_awaited(await self.callback(0) for _ in '_'))
+                               callback=lambda inter: lambda_awaited(await self.callback(0, inter) for _ in "_"))
         self.random = Button(emoji="⏺", style=ButtonStyle.success,
-                             callback=lambda _: lambda_awaited(await self.callback(1) for _ in '_'))
+                             callback=lambda inter: lambda_awaited(await self.callback(1, inter) for _ in "_"))
         self.forward = Button(emoji="⏩", style=ButtonStyle.primary,
-                              callback=lambda _: lambda_awaited(await self.callback(2) for _ in '_'))
+                              callback=lambda inter: lambda_awaited(await self.callback(2, inter) for _ in "_"))
 
         super(Va11HallaView, self).__init__(self.backward, self.random, self.forward,
                                             timeout=Va11Halla_settings.VIEW_TIMEOUT)
@@ -103,11 +103,15 @@ class Va11HallaView(View):
     def message(self):
         return self.view_ctx.message
 
+    @message.setter
+    def message(self, val):
+        self.view_ctx.message = val
+
     async def on_timeout(self) -> None:
         return await self.message.edit(view=None)
 
-    async def callback(self, button_index):
-        return await self._callback(self, button_index)
+    async def callback(self, button_index, interaction):
+        return await self._callback(self, button_index, interaction)
 
     async def switching_buttons(self, n_dial=None, max_line=None):
         if n_dial is None or max_line is None:
@@ -284,7 +288,7 @@ class Va11Halla(Cog):
             return await ctx.send(embed=embed)
 
     async def _get_buttons_callback(self):
-        async def button_callback(view, index):
+        async def button_callback(view, index, interaction):
             if index == 0:
                 dial = self.data.get_script_line(view.view_ctx.embed.line - 1, meta=view.view_ctx.embed.dial.script)
             elif index == 1:
@@ -295,7 +299,7 @@ class Va11Halla(Cog):
                 dial = view.view_ctx.embed.dial
             view.view_ctx.embed.update_embed(dial, self.config["char_icons"][self.data.names[dial.character]])
             await view.switching_buttons()
-            await view.view_ctx.message.edit(embed=view.view_ctx.embed, view=view)
+            await interaction.response.edit_message(embed=view.view_ctx.embed, view=view)
 
         return button_callback
 
